@@ -1,0 +1,56 @@
+version: '3'
+
+
+services:
+
+  beersnob_database:
+    container_name: beersnob_database
+    hostname: beersnob_database
+    image: postgres
+    volumes:
+      - ./volume:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=beersnobdb, beersnobdb_dev
+      - POSTGRES_USER=mhuls
+      - POSTGRES_PASSWORD=aStrongPassword
+    ports:
+      - 54321:5432
+    restart: unless-stopped
+    healthcheck:
+      test: "exit 0"
+
+
+
+  beersnob_api:
+    container_name: beersnob_api
+    hostname: beersnob_api
+    build:
+      context: ./beersnob_api
+      dockerfile: Dockerfile
+    ports:
+     - 54322:5000
+    volumes:
+      - ./beersnob_api/src/:/usr/src/app/
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${BEERSNOB_ENVIRONMENT}
+    depends_on:
+      - beersnob_database
+
+
+  beersnob_webserver:
+      container_name: beersnob_webserver
+      hostname: beersnob_webserver
+      #image: "nginx:alpine"
+      build:
+          context: ./beersnob_webserver
+          dockerfile: Dockerfile
+      ports:
+        - 8080:80
+        - 8081:443
+      volumes:
+        - ./beersnob_webserver/src/test:/usr/share/nginx/html
+      restart: always
+      depends_on:
+        - beersnob_database
