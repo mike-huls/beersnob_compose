@@ -47,8 +47,8 @@ services:
           context: ./beersnob_webserver
           dockerfile: Dockerfile
       ports:
-        - 8080:80
-        - 8081:443
+        - 80:80
+        - 443:443
       volumes:
         - ./beersnob_webserver/src/test:/usr/share/nginx/html
       restart: always
